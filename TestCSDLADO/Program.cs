@@ -26,6 +26,7 @@ namespace TestCSDLADO
                 Console.WriteLine(query1);
                 SqlCommand command1 = new SqlCommand(query1, cnn);
                 int a = command1.ExecuteNonQuery();
+                Console.WriteLine("Xin chao Le Ngoc Phan");
                 if (a > 0) Console.WriteLine("Success!");
                 else Console.WriteLine("Failed!");
                 cnn.Close();
