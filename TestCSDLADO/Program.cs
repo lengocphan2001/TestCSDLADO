@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Data.SqlClient;
 
 namespace TestCSDLADO
@@ -67,6 +68,96 @@ namespace TestCSDLADO
                 Console.WriteLine(e.Message);
             }
         }
+        private static void checkId()
+        {
+            try
+            {
+                string connectionString = "Data Source=PHAN; Initial Catalog = qlsv; Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+                using (SqlConnection cnn = new SqlConnection(connectionString))
+                {
+                    using (SqlCommand cmd = new SqlCommand("select MaSV from SinhVien", cnn))
+                    {
+                        cnn.Open();
+                        Console.WriteLine("Nhap ma sinh vien: ");
+                        int ma = Convert.ToInt32(Console.ReadLine());
+                        bool check = true;
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                if (Convert.ToInt32(reader.GetValue(0)) == ma)
+                                {
+                                    check = false;
+                                    break;
+                                }
+                            }
+                            reader.Close();
+                        }
+                        if (check)
+                        {
+                            Console.WriteLine("Nhập ten sinh vien: ");
+                            String name = Console.ReadLine();
+                            Console.WriteLine("Nhap ngay sinh: ");
+                            DateTime day = Convert.ToDateTime(Console.ReadLine());
+                            Console.WriteLine("Nhap gioi tinh: ");
+                            String gender = Console.ReadLine();
+                            using (SqlCommand cmd1 = cnn.CreateCommand())
+                            {
+                                cmd1.CommandType = System.Data.CommandType.StoredProcedure;
+                                cmd1.CommandText = "them_sinhvien";
+                                cmd1.Parameters.AddWithValue("@masv", ma);
+                                cmd1.Parameters.AddWithValue("@name", name);
+                                cmd1.Parameters.AddWithValue("@ngaysinh", day);
+                                cmd1.Parameters.AddWithValue("@gioitinh", gender);
+                                int a = cmd1.ExecuteNonQuery();
+                                if (a > 0) Console.WriteLine("Success!");
+                                else Console.WriteLine("Failed!");
+                            }
+                            
+                        }
+                        else Console.WriteLine("Ma sinh vien da ton tai");
+                    }
+                    cnn.Dispose();
+                    cnn.Close();
+                }
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+        private static void showDataBase1()
+        {
+            String connectString = "Data Source=PHAN; Initial Catalog = qlsv; Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            try
+            {
+                using (SqlConnection cnn = new SqlConnection(connectString))
+                {
+                    using (SqlCommand cmd = new SqlCommand("select * from SinhVien", cnn))
+                    {
+                        using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+                        {
+                            DataTable tb = new DataTable("SinhVien");
+                            adapter.Fill(tb);
+                            if (tb.Rows.Count == 0)
+                            {
+                                Console.WriteLine("Khong co ban ghi nao!");
+                            }
+                            else
+                            {
+                                foreach(DataRow cur in tb.Rows)
+                                {
+                                    Console.WriteLine(cur["MaSV"] + "-" + cur["sHoTen"] + "-" + cur["dNgaySinh"] + "-" + cur["sGioiTinh"]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
         static void addToDataBase()
         {
             string connectionString = "Data Source=PHAN; Initial Catalog = qlsv; Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
@@ -102,7 +193,8 @@ namespace TestCSDLADO
                 Console.WriteLine("1. Them sinh vien");
                 Console.WriteLine("2. Xoa nhan vien theo ma");
                 Console.WriteLine("3. Hien danh sach sinh vien");
-                Console.WriteLine("4. Thoat");
+                Console.WriteLine("4. Kiem tra ma sinh vien");
+                Console.WriteLine("5. Thoat");
                 Console.WriteLine("Moi chon chuc nang: ");
                 choose = Convert.ToInt32(Console.ReadLine());
                 switch (choose)
@@ -114,12 +206,15 @@ namespace TestCSDLADO
                         deleteWithStoreProcedure();
                         break;
                     case 3:
-                        showDataBase();
+                        showDataBase1();
+                        break;
+                    case 4:
+                        checkId();
                         break;
                     default:
                         break;
                 }
-            } while (choose != 4);
+            } while (choose != 5);
         }
         private static void showDataBase()
         {
