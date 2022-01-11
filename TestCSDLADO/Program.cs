@@ -145,8 +145,12 @@ namespace TestCSDLADO
                             }
                             else
                             {
-                                foreach(DataRow cur in tb.Rows)
+                                DataView dv = new DataView(tb);
+                                dv.Sort = "sHoTen DESC";
+                                dv.RowFilter = "sGioiTinh = 'Nu'";
+                                foreach (DataRow cur in dv)
                                 {
+                                    Console.WriteLine("Le Ngoc Phan");
                                     Console.WriteLine(cur["MaSV"] + "-" + cur["sHoTen"] + "-" + cur["dNgaySinh"] + "-" + cur["sGioiTinh"]);
                                 }
                             }
